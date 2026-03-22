@@ -1,15 +1,16 @@
 use log::{debug, error, warn};
+use windows::core::{Interface, PWSTR};
 use windows::Win32::Foundation::{CloseHandle, MAX_PATH};
 use windows::Win32::Media::Audio::{
-    eConsole, eRender, AudioSessionStateActive, IAudioSessionControl,
-    IAudioSessionControl2, IAudioSessionManager2, IMMDeviceEnumerator,
-    MMDeviceEnumerator,
+    eConsole, eRender, AudioSessionStateActive, IAudioSessionControl, IAudioSessionControl2,
+    IAudioSessionManager2, IMMDeviceEnumerator, MMDeviceEnumerator,
 };
-use windows::Win32::System::Com::{CoCreateInstance, CoInitializeEx, CLSCTX_ALL, COINIT_MULTITHREADED};
+use windows::Win32::System::Com::{
+    CoCreateInstance, CoInitializeEx, CLSCTX_ALL, COINIT_MULTITHREADED,
+};
 use windows::Win32::System::Threading::{
     OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_FORMAT, PROCESS_QUERY_LIMITED_INFORMATION,
 };
-use windows::core::{Interface, PWSTR};
 
 /// Returns a list of application names that are currently outputting audio.
 pub fn get_audio_playing_apps() -> Vec<String> {
@@ -76,7 +77,7 @@ fn process_name_from_pid(pid: u32) -> Option<String> {
         let handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid).ok()?;
         let mut buffer = vec![0u16; MAX_PATH as usize];
         let mut size = MAX_PATH;
-        
+
         let result = QueryFullProcessImageNameW(
             handle,
             PROCESS_NAME_FORMAT(0), // Win32 path format

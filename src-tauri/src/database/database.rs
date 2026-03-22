@@ -1,8 +1,8 @@
-use duckdb::{params, Connection, Result};
-use log::{warn, info, debug};
-use std::{path::PathBuf, sync::Mutex};
-use once_cell::sync::Lazy;
 use crate::shared::structs::{ActivityEntry, GroupedEntry};
+use duckdb::{params, Connection, Result};
+use log::{debug, info, warn};
+use once_cell::sync::Lazy;
+use std::{path::PathBuf, sync::Mutex};
 
 static DB: Lazy<Mutex<Connection>> = Lazy::new(|| {
     let conn = match initialize_database() {
@@ -14,9 +14,11 @@ static DB: Lazy<Mutex<Connection>> = Lazy::new(|| {
     Mutex::new(conn)
 });
 
-/// TODO save the DB 
-fn initialize_database() -> Result<Connection> {   
-    let conn = Connection::open_in_memory()?;
+/// TODO save the DB
+fn initialize_database() -> Result<Connection> {
+    // let conn = Connection::open_in_memory()?;
+    let db_path = PathBuf::from("activity_records.duckdb");
+    let conn = Connection::open(db_path)?;
     conn.execute(
         "CREATE TABLE IF NOT EXISTS activityRecords (
             start_time TIMESTAMP,
@@ -65,12 +67,12 @@ pub fn get_latest_entry() -> Result<Option<ActivityEntry>> {
         [],
         |row| {
             Ok(ActivityEntry {
-                start_time:       row.get(0)?,
-                end_time:         row.get(1)?,
-                title:            row.get(2)?,
-                process_path:     PathBuf::from(row.get::<_, String>(3)?),
-                app_name:         row.get(4)?,
-                is_idle:          row.get(5)?,
+                start_time: row.get(0)?,
+                end_time: row.get(1)?,
+                title: row.get(2)?,
+                process_path: PathBuf::from(row.get::<_, String>(3)?),
+                app_name: row.get(4)?,
+                is_idle: row.get(5)?,
                 is_audio_playing: row.get(6)?,
             })
         },
@@ -81,7 +83,7 @@ pub fn get_latest_entry() -> Result<Option<ActivityEntry>> {
         Err(duckdb::Error::QueryReturnedNoRows) => {
             debug!("Table is empty");
             Ok(None)
-        },
+        }
         Err(e) => {
             warn!("No rows found or error: {}", e);
             Err(e)
@@ -93,12 +95,9 @@ pub fn update_latest_entry(entry: &ActivityEntry) -> () {
     let conn = DB.lock().unwrap();
     let result = conn.execute(
         "UPDATE activityRecords SET 
-        end_time = ?, is_idle = ?
+        end_time = ?, is_idle = ?, is_audio_playing = ?
         WHERE start_time = (SELECT MAX(start_time) FROM activityRecords)",
-        params![
-            entry.end_time,
-            entry.is_idle,
-        ],
+        params![entry.end_time, entry.is_idle, entry.is_audio_playing,],
     );
 
     match result {
@@ -108,19 +107,23 @@ pub fn update_latest_entry(entry: &ActivityEntry) -> () {
             } else {
                 debug!("Updated latest entry successfully");
             }
-        },
+        }
         Err(e) => {
             warn!("Error updating latest entry: {}", e);
         }
     }
 }
 
-pub fn get_grouped_entry(group_by: String, start_time: i64, end_time: i64) -> Result<Vec<GroupedEntry>, Box<dyn std::error::Error>> {
+pub fn get_grouped_entry(
+    group_by: String,
+    start_time: i64,
+    end_time: i64,
+) -> Result<Vec<GroupedEntry>, Box<dyn std::error::Error>> {
     let conn = DB.lock().unwrap();
     let sql = format!(
         "SELECT {col} as name, SUM(epoch_ms(end_time) - epoch_ms(start_time)) as total_ms \
         FROM activityRecords \
-        WHERE epoch_ms(start_time) >= ? AND epoch_ms(start_time) < ? \
+        WHERE epoch_ms(start_time) >= ? AND epoch_ms(start_time) < ? AND (is_idle = 0 OR is_audio_playing = 1) \
         GROUP BY {col} \
         ORDER BY total_ms DESC",
         col = group_by
@@ -132,7 +135,7 @@ pub fn get_grouped_entry(group_by: String, start_time: i64, end_time: i64) -> Re
 
     while let Some(row) = rows.next()? {
         entries.push(GroupedEntry {
-            name:     row.get(0)?,
+            name: row.get(0)?,
             total_ms: row.get(1)?,
         });
     }
