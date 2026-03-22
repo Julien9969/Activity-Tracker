@@ -1,12 +1,12 @@
 use tauri::command;
-use log::{info};
+use log::info;
 
 #[command]
 pub fn set_autostart(app: tauri::AppHandle, enabled: bool) -> Result<bool, String> {
     use tauri_plugin_autostart::ManagerExt;
-    
+
     let autostart_manager = app.autolaunch();
-    
+
     if enabled {
         autostart_manager.enable().map_err(|e| e.to_string())?;
         info!("Autostart enabled");
@@ -14,7 +14,7 @@ pub fn set_autostart(app: tauri::AppHandle, enabled: bool) -> Result<bool, Strin
         autostart_manager.disable().map_err(|e| e.to_string())?;
         info!("Autostart disabled");
     }
-    
+
     let is_enabled = autostart_manager.is_enabled().map_err(|e| e.to_string())?;
     Ok(is_enabled)
 }
@@ -22,7 +22,7 @@ pub fn set_autostart(app: tauri::AppHandle, enabled: bool) -> Result<bool, Strin
 #[command]
 pub fn get_autostart_status(app: tauri::AppHandle) -> Result<bool, String> {
     use tauri_plugin_autostart::ManagerExt;
-    
+
     let autostart_manager = app.autolaunch();
     autostart_manager.is_enabled().map_err(|e| e.to_string())
 }
