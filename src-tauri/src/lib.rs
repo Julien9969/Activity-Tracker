@@ -4,6 +4,7 @@ mod database;
 mod shared;
 
 use crate::commands::commands::get_grouped_data;
+use crate::commands::autostart::{get_autostart_status, set_autostart};
 use crate::core::collector::run_collector;
 use std::error::Error;
 use tauri::{
@@ -26,13 +27,27 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_autostart::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet, get_grouped_data])
+        .invoke_handler(tauri::generate_handler![
+            greet, get_grouped_data, set_autostart, get_autostart_status
+        ])
         .setup(|app| {
+
+            use tauri_plugin_autostart::MacosLauncher;
+            match app.handle().plugin(tauri_plugin_autostart::init(
+                MacosLauncher::LaunchAgent,
+                    Some(vec![]),
+                )) {
+                Ok(_) => println!("Autostart plugin initialized successfully"),
+                Err(e) => eprintln!("Failed to initialize autostart plugin: {}", e),
+            }
+
+            // Start the collector in a background task
             let handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
                 run_collector(handle).await;
             });
 
+            // Build the system tray menu and event handlers
             build_system_tray(app)?;
 
             Ok(())
