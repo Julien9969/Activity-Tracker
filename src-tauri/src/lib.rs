@@ -2,10 +2,12 @@ mod commands;
 mod core;
 mod database;
 mod shared;
+mod tracing_init;
 
 use crate::commands::commands::get_grouped_data;
 use crate::commands::autostart::{get_autostart_status, set_autostart};
 use crate::core::collector::run_collector;
+use crate::tracing_init::init_tracing;
 use std::error::Error;
 use tauri::{
     menu::{Menu, MenuItem},
@@ -20,9 +22,7 @@ fn greet(name: &str) -> String {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    env_logger::Builder::from_default_env()
-        .filter_level(log::LevelFilter::Debug)
-        .init();
+    let _guard = init_tracing();
 
     tauri::Builder::default()
         .plugin(tauri_plugin_autostart::Builder::new().build())
@@ -37,8 +37,8 @@ pub fn run() {
                 MacosLauncher::LaunchAgent,
                     Some(vec![]),
                 )) {
-                Ok(_) => println!("Autostart plugin initialized successfully"),
-                Err(e) => eprintln!("Failed to initialize autostart plugin: {}", e),
+                Ok(_) => tracing::info!("Autostart plugin initialized successfully"),
+                Err(e) => tracing::error!("Failed to initialize autostart plugin: {}", e),
             }
 
             // Start the collector in a background task

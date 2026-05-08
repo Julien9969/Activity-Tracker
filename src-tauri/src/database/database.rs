@@ -1,6 +1,6 @@
 use crate::shared::structs::{ActivityEntry, GroupedEntry};
 use duckdb::{params, Connection, Result};
-use log::{debug, info, warn};
+use tracing::{debug, info, warn};
 use once_cell::sync::Lazy;
 use std::{path::PathBuf, sync::Mutex};
 

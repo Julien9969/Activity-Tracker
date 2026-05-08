@@ -2,7 +2,7 @@ use crate::database::database::{get_latest_entry, insert_activity_entry, update_
 use crate::shared::structs::ActivityEntry;
 use active_win_pos_rs::{get_active_window, ActiveWindow};
 use chrono::Utc;
-use log::{debug, error, info, trace};
+use tracing::{debug, error, info, trace};
 use system_idle_time::get_idle_time;
 use tokio::time::{interval, Duration};
 

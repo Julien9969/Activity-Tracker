@@ -1,4 +1,4 @@
-use log::{debug, error, warn};
+use tracing::{debug, error, warn};
 use windows::core::{Interface, PWSTR};
 use windows::Win32::Foundation::{CloseHandle, MAX_PATH};
 use windows::Win32::Media::Audio::{
