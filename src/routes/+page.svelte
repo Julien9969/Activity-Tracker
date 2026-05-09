@@ -6,7 +6,7 @@
   import { Input } from "$lib/components/ui/input";
   import MenuBar from "$lib/components/MenuBar.svelte";
   import DonutChart from "$lib/components/DonutChart.svelte";
-
+  import Calendar from "$lib/components/Calendar.svelte";
   let name = $state("");
   let greetMsg = $state("");
 
@@ -19,9 +19,16 @@
 <main class="min-h-screen bg-background p-2">
   <MenuBar/>
   <div class="mx-auto space-y-4 scale-95">
-    <div class="flex items-start gap-4 ">
-
-      <Card.Root class="max-w-md w-[40%]">
+    <div class="flex items-stretch gap-4 [&>*>div]:h-full">
+      <div class="w-1/3 flex flex-col *:first:h-full">
+        <Calendar />
+      </div>
+      <div class="w-2/3 flex flex-col *:first:h-full">
+        <DonutChart />
+      </div>
+    </div>
+    <StatusDisplay />
+    <Card.Root class="max-w-md w-[40%]">
         <Card.Header>
           <Card.Title>Greeting</Card.Title>
           <Card.Description>Enter your name to receive a personalized greeting</Card.Description>
@@ -40,11 +47,6 @@
           {/if}
         </Card.Content>
       </Card.Root>
-      <div class="w-[60%]">
-        <DonutChart />
-      </div>
-    </div>
-    <StatusDisplay />
     <div class="flex justify-center">
       <Button href="/second" variant="outline">
         Go to Second Page →

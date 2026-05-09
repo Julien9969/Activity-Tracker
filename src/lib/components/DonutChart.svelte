@@ -81,7 +81,7 @@
   );
 </script>
 
-<Card.Root class="flex flex-col" style="padding: 0.8rem 0rem;">
+<Card.Root class="flex flex-col h-full" style="padding: 0.8rem 0rem;">
   <Card.Header class="items-center">
     <Card.Title>App Usage Today</Card.Title>
     <Card.Description>{todayLabel}</Card.Description>
