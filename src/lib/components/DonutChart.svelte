@@ -3,7 +3,7 @@
   import { invoke } from '@tauri-apps/api/core';
   import * as Chart from "$lib/components/ui/chart/index.js";
   import * as Card from "$lib/components/ui/card/index.js";
-  import { PieChart, Text } from "layerchart";
+  import { PieChart, Text, Tooltip as TooltipPrimitive } from "layerchart";
 
   type GroupedEntry = { name: string; totalMs: number };
   type ChartItem = { app: string; duration: number; color: string };
@@ -39,9 +39,9 @@
 
       console.log('Grouped entries:', entries);
 
-      // Top 9 + "Other" bucket
-      const top = entries.slice(0, 9);
-      const otherMs = entries.slice(9).reduce((sum, e) => sum + e.totalMs, 0);
+      // Tooltips : Top 7 + "Other" sum
+      const top = entries.slice(0, 7);
+      const otherMs = entries.slice(7).reduce((sum, e) => sum + e.totalMs, 0);
       if (otherMs > 0) top.push({ name: 'Other', totalMs: otherMs });
 
       chartData = top.map((e, i) => ({
@@ -127,7 +127,22 @@
             />
           {/snippet}
           {#snippet tooltip()}
-            <Chart.Tooltip hideLabel />
+            <TooltipPrimitive.Root variant="none">
+              <div class="border-border/50 bg-background grid min-w-48 items-start gap-1.5 rounded-lg border px-2.5 py-2 text-sm shadow-xl">
+                <div class="mb-1 font-medium text-foreground">App Usage List</div>
+                <div class="grid gap-1.5">
+                  {#each chartData as item}
+                    <div class="flex w-full items-center gap-2">
+                      <div class="h-2 w-2 shrink-0 rounded-full" style="background-color: {item.color};"></div>
+                      <div class="flex flex-1 items-center justify-between leading-none">
+                        <span class="text-muted-foreground">{item.app}</span>
+                        <span class="text-foreground font-mono font-medium tabular-nums ml-4">{item.duration} min</span>
+                      </div>
+                    </div>
+                  {/each}
+                </div>
+              </div>
+            </TooltipPrimitive.Root>
           {/snippet}
         </PieChart>
       </Chart.Container>
