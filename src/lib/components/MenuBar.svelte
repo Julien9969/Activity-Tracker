@@ -3,6 +3,7 @@
     import { invoke } from "@tauri-apps/api/core";
     import { onMount } from "svelte";
     import ThemeModeToggle from "$lib/components/ThemeModeToggle.svelte";
+    import { goto } from "$app/navigation";
 
     let bookmarks = $state(false);
     let fullUrls = $state(true);
@@ -45,6 +46,7 @@
             }
         })();
     });
+    
 </script>
 
 <Menubar.Root>
@@ -80,6 +82,8 @@
             <Menubar.CheckboxItem bind:checked={autostartEnabled}>
                 Enable Autostart
             </Menubar.CheckboxItem>
+            <Menubar.Separator />
+            <Menubar.Item inset onclick={() => goto('/settings')}>Configuration</Menubar.Item>
         </Menubar.Content>
     </Menubar.Menu>
 
