@@ -29,24 +29,24 @@
     </div>
     <StatusDisplay />
     <Card.Root class="max-w-md w-[40%]">
-        <Card.Header>
-          <Card.Title>Greeting</Card.Title>
-          <Card.Description>Enter your name to receive a personalized greeting</Card.Description>
-        </Card.Header>
-        <Card.Content>
-          <form onsubmit={greet} class="flex gap-2">
-            <Input 
-              placeholder="Enter a name..." 
-              bind:value={name}
-              class="flex-1"
-            />
-            <Button type="submit">Greet</Button>
-          </form>
-          {#if greetMsg}
-            <p class="mt-4 text-sm text-muted-foreground">{greetMsg}</p>
-          {/if}
-        </Card.Content>
-      </Card.Root>
+      <Card.Header>
+        <Card.Title>Greeting</Card.Title>
+        <Card.Description>Enter your name to receive a personalized greeting</Card.Description>
+      </Card.Header>
+      <Card.Content>
+        <form onsubmit={greet} class="flex gap-2">
+          <Input 
+            placeholder="Enter a name..." 
+            bind:value={name}
+            class="flex-1"
+          />
+          <Button type="submit">Greet</Button>
+        </form>
+        {#if greetMsg}
+          <p class="mt-4 text-sm text-muted-foreground">{greetMsg}</p>
+        {/if}
+      </Card.Content>
+    </Card.Root>
     <div class="flex justify-center">
       <Button href="/second" variant="outline">
         Go to Second Page →
