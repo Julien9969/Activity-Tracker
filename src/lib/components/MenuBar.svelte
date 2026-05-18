@@ -4,6 +4,7 @@
     import { onMount } from "svelte";
     import ThemeModeToggle from "$lib/components/ThemeModeToggle.svelte";
     import { goto } from "$app/navigation";
+    import * as Sidebar from "./ui/sidebar";
 
     let bookmarks = $state(false);
     let fullUrls = $state(true);
@@ -51,6 +52,8 @@
 
 <Menubar.Root>
     <Menubar.Menu>
+        <Sidebar.Trigger class="-ms-1" />
+
         <Menubar.Trigger>File</Menubar.Trigger>
         <Menubar.Content>
             <Menubar.Item>

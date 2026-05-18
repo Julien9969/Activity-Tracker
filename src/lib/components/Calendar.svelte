@@ -28,7 +28,7 @@
     <Card.Content>
         <RangeCalendar 
             bind:value
-            class="bg-transparent p-0 [--cell-size:--spacing(5)] sm:[--cell-size:--spacing(7)] md:[--cell-size:--spacing(9)]"
+            class="bg-transparent p-0 [--cell-size:--spacing(5)] sm:[--cell-size:--spacing(7)] md:[--cell-size:--spacing(8)]"
             isDateDisabled={(date) => date.compare(currentDate) > 0}
         />
     </Card.Content>

@@ -18,12 +18,12 @@
 
 <main class="min-h-screen bg-background p-2">
   <MenuBar/>
-  <div class="mx-auto space-y-4 scale-95">
+  <div class="mx-auto space-y-4 scale-97">
     <div class="flex items-stretch gap-4 [&>*>div]:h-full">
-      <div class="w-1/3 flex flex-col *:first:h-full">
+      <div class="flex flex-col *:first:h-full">
         <Calendar />
       </div>
-      <div class="w-2/3 flex flex-col *:first:h-full">
+      <div class="flex-1 flex flex-col *:first:h-full">
         <DonutChart />
       </div>
     </div>

@@ -36,32 +36,33 @@
   });
 </script>
 
-<Card.Root class="flex flex-col h-full" style="padding: 0.8rem 0rem;">
+<Card.Root class="flex flex-col h-full gap-2!" style="padding: 0.8rem 0rem;">
   <Card.Header class="items-center">
     <Card.Title>App Usage</Card.Title>
     <Card.Description>{$rangeLabel}</Card.Description>
   </Card.Header>
   <Card.Content class="flex-1">
     {#if $isLoading}
-      <div class="flex items-center justify-center" style="height: 200px;">
+      <div class="flex items-center justify-center h-full w-full">
         <span class="text-muted-foreground text-sm">Loading…</span>
       </div>
     {:else if $error}
-      <div class="flex items-center justify-center" style="height: 200px;">
+      <div class="flex items-center justify-center h-full w-full">
         <span class="text-destructive text-sm">{$error}</span>
       </div>
     {:else if $chartData.length === 0}
-      <div class="flex items-center justify-center" style="height: 200px;">
+      <div class="flex items-center justify-center h-full w-full">
         <span class="text-muted-foreground text-sm">No activity recorded for selected range.</span>
       </div>
     {:else}
-      <Chart.Container config={chartConfig} class="mx-auto aspect-square" style="max-height: 200px;">
+      <div class="h-full w-full flex">
+        <Chart.Container config={chartConfig} class="h-full w-full" style="aspect-ratio: auto;">
         <PieChart
           data={$chartData}
           key="app"
           value="duration"
           c="color"
-          innerRadius={70}
+          innerRadius={80}
           padding={6}
           props={{ pie: { motion: "tween" } }}
         >
@@ -100,7 +101,8 @@
             </TooltipPrimitive.Root>
           {/snippet}
         </PieChart>
-      </Chart.Container>
+        </Chart.Container>
+      </div>
     {/if}
   </Card.Content>
   <!-- <Card.Footer class="flex-col gap-1 text-sm">
