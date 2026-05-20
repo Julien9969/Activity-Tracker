@@ -1,23 +1,29 @@
 use crate::shared::structs::{ActivityEntry, GroupedEntry};
 use duckdb::{params, Connection, Result};
+use once_cell::sync::OnceCell;
+use std::{path::{Path, PathBuf}, sync::Mutex};
+use crate::shared::paths;
 use tracing::{debug, info, warn};
-use once_cell::sync::Lazy;
-use std::{path::PathBuf, sync::Mutex};
 
-static DB: Lazy<Mutex<Connection>> = Lazy::new(|| {
-    let conn = match initialize_database() {
-        Ok(conn) => conn,
-        Err(e) => {
-            panic!("Failed to initialize database: {}", e);
-        }
-    };
-    Mutex::new(conn)
-});
+static DB: OnceCell<Mutex<Connection>> = OnceCell::new();
+
+pub fn init_database(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>> {
+    if DB.get().is_some() {
+        return Ok(());
+    }
+    
+    let db_path = paths::get_exe_dir(Some(app)).join("activity_records.duckdb");
+    let conn = initialize_database(&db_path)?;
+
+    info!("Database path: {}", db_path.display());
+
+    let _ = DB.set(Mutex::new(conn));
+    Ok(())
+}
 
 /// TODO save the DB
-fn initialize_database() -> Result<Connection> {
+fn initialize_database(db_path: &Path) -> Result<Connection> {
     // let conn = Connection::open_in_memory()?;
-    let db_path = PathBuf::from("activity_records.duckdb");
     let conn = Connection::open(db_path)?;
     conn.execute(
         "CREATE TABLE IF NOT EXISTS activityRecords (
@@ -40,7 +46,11 @@ fn initialize_database() -> Result<Connection> {
 }
 
 pub fn insert_activity_entry(entry: &ActivityEntry) -> Result<()> {
-    let conn = DB.lock().unwrap();
+    let conn = DB
+        .get()
+        .expect("Database not initialized")
+        .lock()
+        .unwrap();
     conn.execute(
         "INSERT INTO activityRecords 
         (start_time, end_time, title, process_path, app_name, is_idle, is_audio_playing) 
@@ -59,7 +69,11 @@ pub fn insert_activity_entry(entry: &ActivityEntry) -> Result<()> {
 }
 
 pub fn get_latest_entry() -> Result<Option<ActivityEntry>> {
-    let conn = DB.lock().unwrap();
+    let conn = DB
+        .get()
+        .expect("Database not initialized")
+        .lock()
+        .unwrap();
 
     let latest_entry = conn.query_row(
         "SELECT start_time, end_time, title, process_path, app_name, is_idle, is_audio_playing
@@ -92,7 +106,11 @@ pub fn get_latest_entry() -> Result<Option<ActivityEntry>> {
 }
 
 pub fn update_latest_entry(entry: &ActivityEntry) -> () {
-    let conn = DB.lock().unwrap();
+    let conn = DB
+        .get()
+        .expect("Database not initialized")
+        .lock()
+        .unwrap();
     let result = conn.execute(
         "UPDATE activityRecords SET 
         end_time = ?, is_idle = ?, is_audio_playing = ?
@@ -119,7 +137,11 @@ pub fn get_grouped_entry(
     start_time: i64,
     end_time: i64,
 ) -> Result<Vec<GroupedEntry>, Box<dyn std::error::Error>> {
-    let conn = DB.lock().unwrap();
+    let conn = DB
+        .get()
+        .expect("Database not initialized")
+        .lock()
+        .unwrap();
     let sql = format!(
         "SELECT {col} as name, SUM(epoch_ms(end_time) - epoch_ms(start_time)) as total_ms \
         FROM activityRecords \

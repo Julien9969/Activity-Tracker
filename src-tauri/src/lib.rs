@@ -7,6 +7,7 @@ mod tracing_init;
 use crate::commands::commands::get_grouped_data;
 use crate::commands::autostart::{get_autostart_status, set_autostart};
 use crate::core::collector::run_collector;
+use crate::database::database as db;
 use crate::tracing_init::init_tracing;
 use std::error::Error;
 use tauri::{
@@ -14,6 +15,7 @@ use tauri::{
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     Manager, WindowEvent,
 };
+use tauri_plugin_autostart::MacosLauncher;
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -25,21 +27,16 @@ pub fn run() {
     let _guard = init_tracing();
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_autostart::Builder::new().build())
+        .plugin(tauri_plugin_autostart::init(
+            MacosLauncher::LaunchAgent,
+            None,
+        ))
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             greet, get_grouped_data, set_autostart, get_autostart_status
         ])
         .setup(|app| {
-
-            use tauri_plugin_autostart::MacosLauncher;
-            match app.handle().plugin(tauri_plugin_autostart::init(
-                MacosLauncher::LaunchAgent,
-                    Some(vec![]),
-                )) {
-                Ok(_) => tracing::info!("Autostart plugin initialized successfully"),
-                Err(e) => tracing::error!("Failed to initialize autostart plugin: {}", e),
-            }
+            db::init_database(&app.handle())?;
 
             // Start the collector in a background task
             let handle = app.handle().clone();
@@ -54,13 +51,13 @@ pub fn run() {
         })
         .on_window_event(|window, event| match event {
             WindowEvent::CloseRequested { api, .. } => {
-                //? TODO dialog
+                //? TODO dialog or options
                 api.prevent_close();
                 let _ = window.hide();
             }
             WindowEvent::Resized(size) => {
                 if size.width == 0 && size.height == 0 {
-                    let _ = window.hide();
+                    // let _ = window.hide();
                 }
             }
             _ => {}
