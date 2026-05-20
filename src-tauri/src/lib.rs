@@ -16,6 +16,7 @@ use tauri::{
     Manager, WindowEvent,
 };
 use tauri_plugin_autostart::MacosLauncher;
+use tracing::info;
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -29,7 +30,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
-            None,
+            Some(vec!["--autostart"]),
         ))
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
@@ -37,6 +38,14 @@ pub fn run() {
         ])
         .setup(|app| {
             db::init_database(&app.handle())?;
+
+            if launched_from_autostart() {
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.minimize();
+                    let _ = window.hide();
+                    info!("Autostart launch detected; window minimized to tray.");
+                }
+            }
 
             // Start the collector in a background task
             let handle = app.handle().clone();
@@ -64,6 +73,10 @@ pub fn run() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+fn launched_from_autostart() -> bool {
+    std::env::args().any(|arg| arg == "--autostart")
 }
 
 fn build_system_tray(app: &mut tauri::App) -> Result<(), Box<dyn Error + 'static>> {
