@@ -8,7 +8,10 @@
 	import ChevronsUpDownIcon from "@lucide/svelte/icons/chevrons-up-down";
 	import CreditCardIcon from "@lucide/svelte/icons/credit-card";
 	import LogOutIcon from "@lucide/svelte/icons/log-out";
+	import MoonIcon from "@lucide/svelte/icons/moon";
 	import SparklesIcon from "@lucide/svelte/icons/sparkles";
+	import SunIcon from "@lucide/svelte/icons/sun";
+	import { mode, toggleMode } from "mode-watcher";
 
 	let { user }: { user: { name: string; email: string; avatar: string } } = $props();
 	const sidebar = useSidebar();
@@ -74,6 +77,15 @@
 					<DropdownMenu.Item>
 						<BellIcon />
 						Notifications
+					</DropdownMenu.Item>
+					<DropdownMenu.Item onclick={toggleMode}>
+						{#if mode.current === "light"}
+							<SunIcon />
+							Theme: Light
+						{:else}
+							<MoonIcon />
+							Theme: Dark
+						{/if}
 					</DropdownMenu.Item>
 				</DropdownMenu.Group>
 				<DropdownMenu.Separator />

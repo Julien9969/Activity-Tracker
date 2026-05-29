@@ -19,18 +19,11 @@
   });
 </script>
 
-<Card.Root class="h-full p-2">
-  <!-- <Card.Header>
-    <Card.Title>Calendar</Card.Title>
-    <Card.Description>Select day or period</Card.Description>
-  </Card.Header> -->
-  <div class="self-center">
-    <Card.Content>
-        <RangeCalendar 
-            bind:value
-            class="bg-transparent p-0 [--cell-size:--spacing(5)] sm:[--cell-size:--spacing(7)] md:[--cell-size:--spacing(8)]"
-            isDateDisabled={(date) => date.compare(currentDate) > 0}
-        />
-    </Card.Content>
-  </div>
-</Card.Root>
+<div class="flex items-center justify-center p-2">
+  <RangeCalendar 
+    bind:value
+    class="bg-transparent p-0 [--cell-size:--spacing(8)]" 
+    // sm:[--cell-size:--spacing(6)] md:[--cell-size:--spacing(7)]"
+    isDateDisabled={(date) => date.compare(currentDate) > 0}
+  />
+</div>
