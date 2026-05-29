@@ -4,7 +4,6 @@
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
   import { Input } from "$lib/components/ui/input";
-  import MenuBar from "$lib/components/MenuBar.svelte";
   import DonutChart from "$lib/components/DonutChart.svelte";
   import Calendar from "$lib/components/Calendar.svelte";
   let name = $state("");
@@ -16,9 +15,8 @@
   }
 </script>
 
-<main class="min-h-screen bg-background p-2">
-  <MenuBar/>
-  <div class="mx-auto space-y-4 scale-97">
+<main class="min-h-screen bg-background">
+  <div class="mx-auto space-y-4 scale-98">
     <div class="flex items-stretch gap-4 [&>*>div]:h-full">
       <div class="flex flex-col *:first:h-full">
         <Calendar />
