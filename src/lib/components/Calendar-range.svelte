@@ -1,5 +1,4 @@
 <script lang="ts">
-  import * as Card from "$lib/components/ui/card";
   import RangeCalendar from "$lib/components/ui/range-calendar/range-calendar.svelte";
   import { today, getLocalTimeZone } from "@internationalized/date";
   import type { DateRange } from "bits-ui";
@@ -19,7 +18,7 @@
   });
 </script>
 
-<div class="flex items-center justify-center p-2">
+<div class="flex p-2">
   <RangeCalendar 
     bind:value
     class="bg-transparent p-0 [--cell-size:--spacing(8)]" 

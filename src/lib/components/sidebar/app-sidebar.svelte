@@ -12,7 +12,7 @@
 	import TeamSwitcher from "./team-switcher.svelte";
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 	import type { ComponentProps } from "svelte";
-  	import Calendar from "$lib/components/Calendar.svelte";
+  	import CalendarRange from "$lib/components/Calendar-range.svelte";
 	import { useSidebar } from "$lib/components/ui/sidebar/index.js";
     import { Calendar1Icon } from "@lucide/svelte";
 
@@ -87,7 +87,7 @@
 		<NavMain items={pages} />
 		<Sidebar.Separator />
 		{#if sidebar.state === "expanded"}
-			<Calendar />
+			<CalendarRange />
 		{:else}
 			<Sidebar.Group>
 				<Sidebar.Menu>
